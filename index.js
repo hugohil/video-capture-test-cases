@@ -2,6 +2,11 @@
 
 const webcam = require('./node_modules/webcamjs/webcam.min.js')
 let mediaRecorder = null
+let capturer = null
+let loop = null
+
+const canvas = document.querySelector('#canvas')
+const ctx = canvas.getContext('2d')
 
 function recordViaMediaRecorder () {
   document.querySelector('#target').setAttribute('src', '')
@@ -37,8 +42,31 @@ function recordViaMediaRecorder () {
   }, 5000)
 }
 
+function setupCanvas () {
+  canvas.width = 400
+  canvas.height = 300
+}
+
+function render () {
+  loop = requestAnimationFrame(render)
+  const stream = document.querySelector('#source > video')
+  ctx.drawImage(stream, 0, 0, canvas.width, canvas.height)
+  capturer.capture(canvas)
+}
+
 function recordViaCcapture () {
+  capturer && capturer.stop()
+  cancelAnimationFrame(loop)
+  document.querySelector('#target').setAttribute('src', '')
   console.log('recording a 5s video via ccapture.')
+  capturer.start()
+  render()
+  setTimeout(() => {
+    console.log('stop')
+    cancelAnimationFrame(loop)
+    capturer.stop()
+    capturer.save()
+  }, 5000)
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -51,6 +79,12 @@ document.addEventListener('DOMContentLoaded', () => {
   webcam.attach('#source')
   webcam.on('live', () => {
     mediaRecorder = new MediaRecorder(webcam.stream, { mimeType: 'video/webm' })
+    capturer = new CCapture({
+      framerate: 60,
+      verbose: true,
+      format: 'webm'
+    })
+    setupCanvas()
   })
 
   document.querySelector('.js-capture-media-recorder').addEventListener('click', recordViaMediaRecorder)

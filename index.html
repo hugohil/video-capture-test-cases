@@ -6,13 +6,18 @@
 <body>
   <button class="js-capture-media-recorder">capture a 5s video via the MediaRecorder API</button>
   <button class="js-capture-ccapture">capture a 5s video via the ccapture.js</button>
-  <div id="source"></div>
+  <div id="source">
+  </div>
+  <canvas id="canvas"></canvas>
   <div id="container">
     <video id="target" autoplay loop muted></video>
   </div>
   <script src="./node_modules/ccapture.js/build/CCapture.all.min.js"></script>
   <script src="./index.js"></script>
   <style type="text/css">
+    #canvas {
+      display: block;
+    }
     #source {
       display: none;
     }
